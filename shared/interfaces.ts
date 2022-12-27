@@ -27,6 +27,8 @@ export interface IShopLocation {
     x: number;
     y: number;
     z: number;
+    pedModel?: string;
+    pedHeading?: number;
     isBlip?: boolean; //Enable/Disable blip e.g. none for Vendors. Already defined from Athena in shared/information
 }
 

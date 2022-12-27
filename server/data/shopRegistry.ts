@@ -51,7 +51,7 @@ export const ShopRegistry: IShop[] = [
     }, */
     {
         name: '24/7 Shop',
-        dbName: '24-7-Shop',
+        dbName: '247Shop',
         blipSprite: 59,
         blipColor: 2,
         blipScale: 1,
@@ -140,7 +140,7 @@ export const ShopRegistry: IShop[] = [
     },
     {
         name: 'Tequi-la-la',
-        dbName: 'Tequi-la-la',
+        dbName: 'Tequilala',
         blipSprite: 93,
         blipColor: 48,
         blipScale: 1,

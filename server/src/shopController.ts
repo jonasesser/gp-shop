@@ -9,48 +9,65 @@ import { InteractionController } from '@AthenaServer/systems/interaction';
 import { ItemFactory } from '@AthenaServer/systems/item';
 import { CurrencyTypes } from '@AthenaShared/enums/currency';
 import { deepCloneObject } from '@AthenaShared/utility/deepCopy';
-import Database from '@stuyk/ezmongodb';
 import * as alt from 'alt-server';
 import { ShopRegistry } from '../data/shopRegistry';
 
+let shops: IShop[] = [];
 export class ShopController {
     static async init() {
         ShopController.initShops();
         alt.onClient(View_Events_GPShop.VS_HandleShop, ShopController.handleShop);
+        alt.onClient(View_Events_GPShop.Wheelmenu_OpenShop, ShopController.openPedShop);
     }
 
     static async initShops() {
-        ShopRegistry.forEach(async (shop, index) => {
-            let dbShop: IShop = await Database.fetchAllByField<IShop>('dbName', shop.dbName, Config.collection)[0];
-            if (!dbShop) {
-                dbShop = deepCloneObject(shop);
+        ShopRegistry.forEach(async (_shop, index) => {
+            const shops: IShop[] = await Athena.database.funcs.fetchAllByField<IShop>(
+                'dbName',
+                _shop.dbName,
+                Config.collection,
+            );
+
+            let shop: IShop = _shop;
+            if (shops.length > 0 && shops[0] && !Config.overrideExistingsShopsOnServerStart) {
+                shop = shops[0];
             }
 
-            if (!dbShop._id) {
-                dbShop = await Database.insertData(dbShop, Config.collection, true);
+            if (!shop._id) {
+                alt.logWarning(`Shop ${shop.dbName} does not exist in the database -> Created`);
+                shop = await Athena.database.funcs.insertData(shop, Config.collection, true);
             }
 
-            for (let i = 0; i < dbShop.locations.length; i++) {
-                let location = dbShop.locations[i];
+            for (let i = 0; i < shop.locations.length; i++) {
+                let location = shop.locations[i];
                 if (location.isBlip) {
                     ServerBlipController.append({
                         pos: new alt.Vector3(location.x, location.y, location.z),
                         shortRange: true,
-                        sprite: dbShop.blipSprite,
-                        color: dbShop.blipColor,
-                        text: dbShop.name,
-                        scale: dbShop.blipScale,
-                        uid: `Shop-${dbShop.dbName}-${i}`,
+                        sprite: shop.blipSprite,
+                        color: shop.blipColor,
+                        text: shop.name,
+                        scale: shop.blipScale,
+                        uid: `${Config.blipPrefix}_${shop.dbName}_${i}`,
                     });
                 }
-                InteractionController.add({
-                    position: new alt.Vector3(location.x, location.y, location.z),
-                    description: LOCALE_GP_SHOP.OPEN_SHOP,
-                    range: dbShop.interactionRange ? dbShop.interactionRange : Config.interactionRange,
-                    uid: `IC-${dbShop.dbName}-${i}`,
-                    debug: false,
-                    callback: (player: alt.Player) => ShopController.initShopCallback(player, dbShop),
-                });
+                if (location.pedModel) {
+                    Athena.controllers.ped.append({
+                        model: location.pedModel,
+                        pos: new alt.Vector3(location.x, location.y, location.z),
+                        heading: location.pedHeading ? location.pedHeading : 0,
+                        uid: `${Config.pedPrefix}_${shop.dbName}_${i}`,
+                    });
+                } else {
+                    InteractionController.add({
+                        position: new alt.Vector3(location.x, location.y, location.z),
+                        description: LOCALE_GP_SHOP.OPEN_SHOP,
+                        range: shop.interactionRange ? shop.interactionRange : Config.interactionRange,
+                        uid: `${Config.icPrefix}-${shop.dbName}-${i}`,
+                        debug: false,
+                        callback: (player: alt.Player) => ShopController.initShopCallback(player, shop.dbName),
+                    });
+                }
             }
         });
     }
@@ -61,33 +78,39 @@ export class ShopController {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    static async initShopCallback(player: alt.Player, shop: IShop) {
-        let currentShop = shop;
-        let dbShop: IShop = await Database.fetchAllByField<IShop>('dbName', shop.dbName, Config.collection)[0];
-        if (dbShop) {
-            currentShop = dbShop;
+    static async openPedShop(player: alt.Player, pedUid: string) {
+        alt.logWarning(`Ped Shop Opened: ${pedUid}`);
+        ShopController.initShopCallback(player, pedUid.split('_')[1]);
+    }
+
+    static async initShopCallback(player: alt.Player, shopDbName: string) {
+        let shops: IShop[] = await Athena.database.funcs.fetchAllByField<IShop>(
+            'dbName',
+            shopDbName,
+            Config.collection,
+        );
+
+        if (shops.length <= 0) {
+            alt.logError(`~lr~Shop ${shopDbName} is not in your database!`);
+            return;
         }
+        let currentShop: IShop = shops[0];
         let dataItems: Array<IShopListItem> = [];
         for (const item of currentShop.data.items) {
-            let factoryItem = await ItemFactory.get(item.dbName);
-            if (!factoryItem) {
-                alt.log(`~lr~Item ${item.dbName} is not in your ItemFactory!`);
+            let itemToAdd: IShopListItem = null;
+            if (Config.loadShopItemsWithoutItemFactory) {
+                itemToAdd = item;
             } else {
-                let itemPrice = 100;
-
-                dataItems.push({
-                    name: factoryItem.name,
-                    dbName: factoryItem.dbName,
-                    price: itemPrice,
-                    icon: factoryItem.icon,
-                    description: factoryItem.description,
-                    quantity: factoryItem.quantity,
-                    behavior: factoryItem.behavior,
-                    data: factoryItem.data,
-                });
+                itemToAdd = await ItemFactory.get(item.dbName);
+                if (!itemToAdd) {
+                    alt.log(`~lr~Item ${item.dbName} is not in your ItemFactory!`);
+                    continue;
+                }
             }
+            itemToAdd.price = itemToAdd.price ? itemToAdd.price : 100;
+            dataItems.push(itemToAdd);
         }
-        alt.emitClient(player, View_Events_GPShop.SC_OpenShop, dataItems, shop.ShopType);
+        alt.emitClient(player, View_Events_GPShop.SC_OpenShop, dataItems, currentShop.ShopType);
     }
 
     static async handleShop(player: alt.Player, shopItem: IShopListItem, amount: number, type: string) {
