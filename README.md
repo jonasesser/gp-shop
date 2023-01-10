@@ -14,7 +14,7 @@ In Development and not fully tested, yet. You can help by opening issues or crea
 2. Peds for shops
 3. Tested with over 200 items
 
-#ATTENTION: There was a bug in last version, where all shops will recreated on server restart. This is fixed now, but you need to delete all shops in your database.
+#ATTENTION: AGAIN PLEASE DROP gpShops Database collection. There was a bug in last version, where all shops will recreated on server restart. This is fixed now, but you need to delete all shops in your database.
 
 ##Plans for next year
 

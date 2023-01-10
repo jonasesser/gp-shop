@@ -29,13 +29,18 @@ export class ShopController {
             );
 
             let shop: IShop = _shop;
-            if (shops.length > 0 && shops[0] && !Config.overrideExistingsShopsOnServerStart) {
+            if (shops.length > 0 && shops[0]) {
                 shop = shops[0];
             }
 
             if (!shop._id) {
                 alt.logWarning(`Shop ${shop.dbName} does not exist in the database -> Created`);
                 shop = await Athena.database.funcs.insertData(shop, Config.collection, true);
+            } else if (Config.overrideExistingsShopsOnServerStart) {
+                alt.logWarning(`Shop ${shop.dbName} already exists in the database -> Overriding`);
+                await Athena.database.funcs.updatePartialData(shop._id, shop, Config.collection);
+            } else {
+                alt.logWarning(`Shop ${shop.dbName} already exists in the database -> Leave as is`);
             }
 
             for (let i = 0; i < shop.locations.length; i++) {
