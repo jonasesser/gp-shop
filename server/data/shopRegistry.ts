@@ -1,40 +1,49 @@
-import { ammo } from '@AthenaPlugins/gp-items-shared/shared/items/ammo';
-import { construction } from '@AthenaPlugins/gp-items-shared/shared/items/construction';
-import { drinks } from '@AthenaPlugins/gp-items-shared/shared/items/drinks';
-import { drugs } from '@AthenaPlugins/gp-items-shared/shared/items/drugs';
-import { food } from '@AthenaPlugins/gp-items-shared/shared/items/food';
-import { furniture } from '@AthenaPlugins/gp-items-shared/shared/items/furniture';
-import { machines } from '@AthenaPlugins/gp-items-shared/shared/items/machines';
-import { medicin } from '@AthenaPlugins/gp-items-shared/shared/items/medicin';
-import { other } from '@AthenaPlugins/gp-items-shared/shared/items/other';
-import { parts } from '@AthenaPlugins/gp-items-shared/shared/items/parts';
-import { plants } from '@AthenaPlugins/gp-items-shared/shared/items/plants';
-import { poison } from '@AthenaPlugins/gp-items-shared/shared/items/poisons';
-import { resources } from '@AthenaPlugins/gp-items-shared/shared/items/resources';
-import { road } from '@AthenaPlugins/gp-items-shared/shared/items/road';
-import { tools } from '@AthenaPlugins/gp-items-shared/shared/items/tools';
-import { phones } from '@AthenaPlugins/gp-voice/server/src/items/phones';
-import { radios } from '@AthenaPlugins/gp-voice/server/src/items/radios';
+// import { ammo } from '@AthenaPlugins/gp-items-shared/shared/items/ammo';
+// import { construction } from '@AthenaPlugins/gp-items-shared/shared/items/construction';
+// import { drinks } from '@AthenaPlugins/gp-items-shared/shared/items/drinks';
+// import { drugs } from '@AthenaPlugins/gp-items-shared/shared/items/drugs';
+// import { food } from '@AthenaPlugins/gp-items-shared/shared/items/food';
+// import { furniture } from '@AthenaPlugins/gp-items-shared/shared/items/furniture';
+// import { machines } from '@AthenaPlugins/gp-items-shared/shared/items/machines';
+// import { medicin } from '@AthenaPlugins/gp-items-shared/shared/items/medicin';
+// import { other } from '@AthenaPlugins/gp-items-shared/shared/items/other';
+// import { parts } from '@AthenaPlugins/gp-items-shared/shared/items/parts';
+// import { plants } from '@AthenaPlugins/gp-items-shared/shared/items/plants';
+// import { poison } from '@AthenaPlugins/gp-items-shared/shared/items/poisons';
+// import { resources } from '@AthenaPlugins/gp-items-shared/shared/items/resources';
+// import { road } from '@AthenaPlugins/gp-items-shared/shared/items/road';
+// import { tools } from '@AthenaPlugins/gp-items-shared/shared/items/tools';
+// import { phones } from '@AthenaPlugins/gp-voice/server/src/items/phones';
+// import { radios } from '@AthenaPlugins/gp-voice/server/src/items/radios';
+import { drinks } from '@AthenaPlugins/core-items/server/src/items/drinks';
+import { food } from '@AthenaPlugins/core-items/server/src/items/food';
+import { utility } from '@AthenaPlugins/core-items/server/src/items/utility';
 import { IShop, ShopType } from '../../shared/interfaces';
 import * as Shops from './shopLocations';
 
 export const AllSharedItems = [
-    ...drinks,
     ...food,
-    ...furniture,
-    ...machines,
-    ...plants,
-    ...drugs,
-    ...medicin,
-    ...poison,
-    ...road,
-    ...tools,
-    ...resources,
-    ...parts,
-    ...ammo,
-    ...construction,
-    ...other,
+    ...drinks,
+    ...utility,
 ];
+
+// export const AllSharedItems = [
+//     ...drinks,
+//     ...food,
+//     ...furniture,
+//     ...machines,
+//     ...plants,
+//     ...drugs,
+//     ...medicin,
+//     ...poison,
+//     ...road,
+//     ...tools,
+//     ...resources,
+//     ...parts,
+//     ...ammo,
+//     ...construction,
+//     ...other,
+// ];
 
 export const ShopRegistry: IShop[] = [
     /* {
@@ -68,7 +77,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 1,
         blipScale: 1,
         data: {
-            items: [...food],
+            // items: [...food],
         },
         locations: Shops.sellerExampleLocations,
     },
@@ -79,7 +88,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 2,
         blipScale: 1,
         data: {
-            items: [...food, ...drinks, ...phones, ...radios],
+            // items: [...food, ...drinks, ...phones, ...radios],
         },
         locations: Shops.ltdLocations,
     },
@@ -90,7 +99,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 2,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.robsLiquorLocations,
     },
@@ -101,7 +110,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 2,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.juiceLocations,
     },
@@ -112,7 +121,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 2,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.liquorAceLocations,
     },
@@ -123,7 +132,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 2,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.toolShopLocations,
     },
@@ -134,7 +143,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 2,
         blipScale: 1,
         data: {
-            items: [...ammo],
+            // items: [...ammo],
         },
         locations: Shops.ammunationLocations,
     },
@@ -145,7 +154,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 48,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.tequiLaLaLocations,
     },
@@ -156,7 +165,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 48,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.bahamaMamasLocations,
     },
@@ -167,7 +176,7 @@ export const ShopRegistry: IShop[] = [
         blipColor: 48,
         blipScale: 1,
         data: {
-            items: [...drinks],
+            // items: [...drinks],
         },
         locations: Shops.vanillaUnicornLocations,
     },
