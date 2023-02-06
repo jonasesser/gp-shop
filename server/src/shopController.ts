@@ -21,39 +21,43 @@ export class ShopController {
     }
 
     static async initShops() {
-        ShopRegistry.forEach(async (_shop, index) => {
-            const shops: IShop[] = await Athena.database.funcs.fetchAllByField<IShop>(
+        ShopRegistry.forEach(async (shopFromConfig, index) => {
+            const shopsFromDB: IShop[] = await Athena.database.funcs.fetchAllByField<IShop>(
                 'dbName',
-                _shop.dbName,
+                shopFromConfig.dbName,
                 Config.collection,
             );
 
-            let shop: IShop = _shop;
-            if (shops.length > 0 && shops[0]) {
-                shop = shops[0];
+            let shopFromDB: IShop = null;
+            if (shopsFromDB.length > 0 && shopsFromDB[0]) {
+                shopFromDB = shopsFromDB[0];
             }
 
-            if (!shop._id) {
-                alt.logWarning(`Shop ${shop.dbName} does not exist in the database -> Created`);
-                shop = await Athena.database.funcs.insertData(shop, Config.collection, true);
+            if (!shopFromDB) {
+                alt.logWarning(`Shop ${shopFromConfig.dbName} does not exist in the database -> Created`);
+                shopFromDB = await Athena.database.funcs.insertData(shopFromConfig, Config.collection, true);
             } else if (Config.overrideExistingsShopsOnServerStart) {
-                alt.logWarning(`Shop ${shop.dbName} already exists in the database -> Overriding`);
-                await Athena.database.funcs.updatePartialData(shop._id, shop, Config.collection);
+                alt.logWarning(`Shop ${shopFromDB.dbName} already exists in the database -> Overriding`);
+                await Athena.database.funcs.updatePartialData(
+                    shopFromDB._id.toString(),
+                    shopFromConfig,
+                    Config.collection,
+                );
             } else {
-                alt.logWarning(`Shop ${shop.dbName} already exists in the database -> Leave as is`);
+                alt.logWarning(`Shop ${shopFromDB.dbName} already exists in the database -> Leave as is`);
             }
 
-            for (let i = 0; i < shop.locations.length; i++) {
-                let location = shop.locations[i];
+            for (let i = 0; i < shopFromDB.locations.length; i++) {
+                let location = shopFromDB.locations[i];
                 if (location.isBlip) {
                     ServerBlipController.append({
                         pos: new alt.Vector3(location.x, location.y, location.z),
                         shortRange: true,
-                        sprite: shop.blipSprite,
-                        color: shop.blipColor,
-                        text: shop.name,
-                        scale: shop.blipScale,
-                        uid: `${Config.blipPrefix}_${shop.dbName}_${i}`,
+                        sprite: shopFromDB.blipSprite,
+                        color: shopFromDB.blipColor,
+                        text: shopFromDB.name,
+                        scale: shopFromDB.blipScale,
+                        uid: `${Config.blipPrefix}_${shopFromDB.dbName}_${i}`,
                     });
                 }
                 if (location.pedModel) {
@@ -61,16 +65,16 @@ export class ShopController {
                         model: location.pedModel,
                         pos: new alt.Vector3(location.x, location.y, location.z),
                         heading: location.pedHeading ? location.pedHeading : 0,
-                        uid: `${Config.pedPrefix}_${shop.dbName}_${i}`,
+                        uid: `${Config.pedPrefix}_${shopFromDB.dbName}_${i}`,
                     });
                 } else {
                     InteractionController.add({
                         position: new alt.Vector3(location.x, location.y, location.z),
                         description: LOCALE_GP_SHOP.OPEN_SHOP,
-                        range: shop.interactionRange ? shop.interactionRange : Config.interactionRange,
-                        uid: `${Config.icPrefix}-${shop.dbName}-${i}`,
+                        range: shopFromDB.interactionRange ? shopFromDB.interactionRange : Config.interactionRange,
+                        uid: `${Config.icPrefix}-${shopFromDB.dbName}-${i}`,
                         debug: false,
-                        callback: (player: alt.Player) => ShopController.initShopCallback(player, shop.dbName),
+                        callback: (player: alt.Player) => ShopController.initShopCallback(player, shopFromDB.dbName),
                     });
                 }
             }
