@@ -4,6 +4,7 @@ import { Config } from '@AthenaPlugins/gp-shop/shared/config';
 import { View_Events_GPShop } from '@AthenaPlugins/gp-shop/shared/events';
 import { AthenaClient } from '@AthenaClient/api/athena';
 import IShopListItem from '@AthenaPlugins/gp-shop/shared/interfaces';
+import { disableAllControls } from '@AthenaClient/utility/disableControls';
 
 const PAGE_NAME = Config.shopPageName;
 
@@ -28,6 +29,7 @@ export class ShopView implements ViewModel {
         AthenaClient.webview.focus();
         AthenaClient.webview.showCursor(true);
         alt.toggleGameControls(false);
+        disableAllControls(true);
         alt.Player.local.isMenuOpen = true;
     }
 
@@ -35,6 +37,7 @@ export class ShopView implements ViewModel {
         AthenaClient.webview.unfocus();
         AthenaClient.webview.showCursor(false);
         alt.toggleGameControls(true);
+        disableAllControls(false);
         alt.Player.local.isMenuOpen = false;
     }
 
